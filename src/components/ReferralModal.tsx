@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Copy, Upload, Share2, Send, CheckCircle2, FileText } from 'lucide-react';
 import Modal from './ui/Modal';
 import clsx from 'clsx';
+import { useHaptic } from '../hooks/useHaptic';
 
 interface ReferralModalProps {
   isOpen: boolean;
@@ -16,10 +17,12 @@ export default function ReferralModal({ isOpen, onClose, partnerId }: ReferralMo
   const [copied, setCopied] = useState(false);
   const [sent, setSent] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const { trigger: haptic } = useHaptic();
 
   const referralLink = `coindcx.com/ref/${partnerId}`;
 
   const handleCopy = () => {
+    haptic();
     navigator.clipboard.writeText(referralLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -27,12 +30,14 @@ export default function ReferralModal({ isOpen, onClose, partnerId }: ReferralMo
 
   const handleMagicLink = (e: React.FormEvent) => {
     e.preventDefault();
+    haptic();
     setSent(true);
     setTimeout(() => {
         setSent(false);
         onClose();
     }, 2000);
   };
+
 
   const handleFileDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -43,7 +48,7 @@ export default function ReferralModal({ isOpen, onClose, partnerId }: ReferralMo
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Share Referral Link">
+    <Modal isOpen={isOpen} onClose={onClose} title="Onboard Users">
       {/* Tabs */}
       <div className="flex border-b border-gray-100 mb-6">
         {[
@@ -53,7 +58,10 @@ export default function ReferralModal({ isOpen, onClose, partnerId }: ReferralMo
         ].map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as Tab)}
+            onClick={() => {
+              haptic();
+              setActiveTab(tab.id as Tab);
+            }}
             className={clsx(
               "flex-1 pb-3 text-sm font-medium border-b-2 transition-colors",
               activeTab === tab.id
@@ -102,7 +110,8 @@ export default function ReferralModal({ isOpen, onClose, partnerId }: ReferralMo
                         <input required placeholder="Client Name" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" />
                         <input required type="tel" placeholder="Phone Number" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" />
                         <input required type="email" placeholder="Email Address" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" />
-                        <input placeholder="PAN Number (Optional)" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" />
+                        <input required placeholder="PAN Number" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" />
+                        <input required placeholder="Aadhar Number" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" />
                     </div>
                     <button type="submit" className="w-full flex items-center justify-center gap-2 py-3 bg-primary text-white rounded-lg font-medium hover:bg-red-700 transition-colors shadow-lg shadow-red-200">
                         <Send className="w-4 h-4" />

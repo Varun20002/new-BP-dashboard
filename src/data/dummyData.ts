@@ -157,12 +157,19 @@ export interface TDSSummaryItem {
   tdsDeducted: string;
 }
 
+export interface Holding {
+  name: string;
+  symbol: string;
+  quantity: string;
+}
+
 export interface User {
   name: string;
   uid: string;
   phone: string;
   walletBalance: string;
   checks: UserChecklist;
+  holdings?: Holding[];
   portfolioHistory?: ClientPortfolioItem[];
   orderHistory?: OrderHistoryItem[];
   marginHistory?: MarginHistoryItem[];
@@ -185,9 +192,9 @@ export interface DashboardData {
 
 export const dummyData: DashboardData = {
   "userProfile": {
-    "name": "Arun Sharma",
+    "name": "Lohit Gupta",
     "id": "BP_88291",
-    "avatar": "https://i.pravatar.cc/150?u=arun"
+    "avatar": "/lohit_profile.png.png"
   },
   "earnings": {
     "total": "₹ 1,24,500",
@@ -240,6 +247,10 @@ export const dummyData: DashboardData = {
       "name": "Amit Kumar", "uid": "DCX_001", "phone": "9876543210", 
       "walletBalance": "₹ 12,500.00",
       "checks": { "signup": true, "kyc": true, "bank": true, "deposit": true, "onboarded": true },
+      "holdings": [
+        { "name": "Bitcoin", "symbol": "BTC", "quantity": "0.05" },
+        { "name": "Shiba Inu", "symbol": "SHIB", "quantity": "1000000" }
+      ],
       "portfolioHistory": [
         { "token": "USDT", "quantity": "500.00", "date": "16 Dec 2025, 10:30 AM", "action": "Deposit", "status": "Completed" },
         { "token": "INR", "quantity": "50,000", "date": "15 Dec 2025, 02:15 PM", "action": "Deposit", "status": "Completed" },
@@ -260,12 +271,19 @@ export const dummyData: DashboardData = {
       "name": "Sumit Roy", "uid": "DCX_002", "phone": "9876543211", 
       "walletBalance": "₹ 0.00",
       "checks": { "signup": true, "kyc": true, "bank": false, "deposit": false, "onboarded": false },
+      "holdings": [
+        { "name": "Ethereum", "symbol": "ETH", "quantity": "0.5" }
+      ],
       "portfolioHistory": []
     },
      { 
       "name": "Vikram Singh", "uid": "DCX_909", "phone": "9876543212", 
       "walletBalance": "₹ 4,50,250.80",
       "checks": { "signup": true, "kyc": true, "bank": true, "deposit": true, "onboarded": true },
+      "holdings": [
+        { "name": "Shiba Inu", "symbol": "SHIB", "quantity": "5000000" },
+        { "name": "Solana", "symbol": "SOL", "quantity": "50" }
+      ],
       "portfolioHistory": [
         { "token": "ETH", "quantity": "1.5", "date": "17 Dec 2025, 11:20 AM", "action": "Deposit", "status": "Completed" },
         { "token": "INR", "quantity": "1,00,000", "date": "17 Dec 2025, 09:00 AM", "action": "Deposit", "status": "Completed" }

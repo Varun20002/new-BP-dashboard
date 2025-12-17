@@ -14,7 +14,10 @@ export default function Sidebar() {
   return (
     <div className="w-64 h-screen bg-white border-r border-gray-100 flex flex-col fixed left-0 top-0 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] z-20">
       <div className="h-16 flex items-center px-8 border-b border-gray-100">
-        <span className="text-xl font-bold text-primary tracking-tight">CoinDCX</span>
+        <span className="text-xl font-bold tracking-tight">
+          <span className="text-black">Coin</span>
+          <span className="text-[#D32F2F]">DCX</span>
+        </span>
         <span className="ml-2 text-[10px] uppercase font-bold text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">Partner</span>
       </div>
 

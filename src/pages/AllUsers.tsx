@@ -12,7 +12,11 @@ export default function AllUsers() {
   const filteredUsers = allUsers.filter(user => 
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.uid.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.phone.includes(searchTerm)
+    user.phone.includes(searchTerm) ||
+    user.holdings?.some(holding => 
+      holding.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      holding.symbol.toLowerCase().includes(searchTerm.toLowerCase())
+    )
   );
 
   const StatusIcon = ({ checked }: { checked: boolean }) => (
@@ -29,7 +33,7 @@ export default function AllUsers() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input 
                 type="text" 
-                placeholder="Search by Name, UID, Phone..." 
+                placeholder="Search by Name, UID, Phone, Coin..." 
                 className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -41,13 +45,14 @@ export default function AllUsers() {
         <table className="w-full text-left text-sm">
             <thead className="bg-gray-50 text-gray-500 border-b border-gray-100">
                 <tr>
-                    <th className="px-6 py-4 w-[25%] font-medium uppercase text-xs tracking-wider">Client</th>
-                    <th className="px-6 py-4 w-[20%] font-medium uppercase text-xs tracking-wider">Contact</th>
+                    <th className="px-6 py-4 w-[20%] font-medium uppercase text-xs tracking-wider">Client</th>
+                    <th className="px-6 py-4 w-[15%] font-medium uppercase text-xs tracking-wider">Contact</th>
+                    <th className="px-6 py-4 w-[15%] font-medium uppercase text-xs tracking-wider">Holdings</th>
                     <th className="px-4 py-4 w-[8%] font-medium text-center uppercase text-xs tracking-wider">Sign Up</th>
                     <th className="px-4 py-4 w-[8%] font-medium text-center uppercase text-xs tracking-wider">KYC</th>
                     <th className="px-4 py-4 w-[8%] font-medium text-center uppercase text-xs tracking-wider">Bank</th>
                     <th className="px-4 py-4 w-[10%] font-medium text-center uppercase text-xs tracking-wider">1st Deposit</th>
-                    <th className="px-6 py-4 w-[15%] font-medium uppercase text-xs tracking-wider">Status</th>
+                    <th className="px-6 py-4 w-[10%] font-medium uppercase text-xs tracking-wider">Status</th>
                     <th className="px-6 py-4 w-[6%] font-medium text-right uppercase text-xs tracking-wider">Report</th>
                 </tr>
             </thead>
@@ -64,6 +69,21 @@ export default function AllUsers() {
                         </td>
                         <td className="px-6 py-4 align-middle">
                             <div className="font-mono text-gray-600 text-xs">{user.phone}</div>
+                        </td>
+                        <td className="px-6 py-4 align-middle">
+                            <div className="flex flex-wrap gap-1">
+                                {user.holdings?.slice(0, 3).map((holding, idx) => (
+                                    <span key={idx} className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-600 border border-gray-200">
+                                        {holding.symbol}
+                                    </span>
+                                ))}
+                                {(user.holdings?.length || 0) > 3 && (
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium text-gray-400">
+                                        +{user.holdings!.length - 3}
+                                    </span>
+                                )}
+                                {!user.holdings?.length && <span className="text-gray-300 text-xs">-</span>}
+                            </div>
                         </td>
                         <td className="px-4 py-4 text-center align-middle"><div className="flex justify-center"><StatusIcon checked={user.checks.signup} /></div></td>
                         <td className="px-4 py-4 text-center align-middle"><div className="flex justify-center"><StatusIcon checked={user.checks.kyc} /></div></td>

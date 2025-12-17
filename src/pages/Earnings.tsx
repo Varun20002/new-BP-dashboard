@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { UserPlus, Search, Info, Copy, TrendingUp, Phone, MessageCircle } from 'lucide-react';
+import { UserPlus, Search, Info, TrendingUp, Phone, MessageCircle, ChevronRight, ChevronUp } from 'lucide-react';
 import { dummyData } from '../data/dummyData';
 import clsx from 'clsx';
 
@@ -18,6 +18,12 @@ export default function Earnings() {
   const { stats, recoverable, history } = earnings;
   const [timeFilter, setTimeFilter] = useState('7D');
   const [searchTerm, setSearchTerm] = useState('');
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const filteredHistory = history.filter(row => 
+    row.client.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    row.uid.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   // Scaling logic for filters
   const getMultiplier = (filter: string) => {
@@ -42,6 +48,8 @@ export default function Earnings() {
     pending: formatCurrency(parseCurrency(earnings.pending) * multiplier),
     total: formatCurrency(parseCurrency(earnings.total) * multiplier),
   };
+
+  const visibleActionList = isExpanded ? recoverable.actionList : recoverable.actionList.slice(0, 2);
 
   return (
     <div className="p-8 max-w-[1600px] mx-auto space-y-8">
@@ -110,7 +118,7 @@ export default function Earnings() {
       </div>
 
        {/* 3. Recoverable Revenue (Secondary) */}
-       <div className="bg-gradient-to-r from-orange-50/40 to-yellow-50/40 rounded-xl border border-orange-100/60 p-5 flex flex-col md:flex-row items-center justify-between gap-6 group hover:border-orange-200 transition-colors">
+       <div className="bg-gradient-to-r from-orange-50/40 to-yellow-50/40 rounded-xl border border-orange-100/60 p-5 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6 group hover:border-orange-200 transition-colors">
           <div className="flex items-center gap-5">
              <div className="p-3 bg-white rounded-xl shadow-sm border border-orange-100">
                 <TrendingUp className="w-6 h-6 text-orange-500" />
@@ -125,20 +133,32 @@ export default function Earnings() {
                 </p>
              </div>
           </div>
-          <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
-             {recoverable.actionList.slice(0, 2).map((user, i) => (
-                <div key={i} className="flex-shrink-0 flex items-center gap-3 bg-white px-4 py-2.5 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-all cursor-pointer">
-                    <div>
-                        <div className="text-xs font-bold text-gray-900">{user.name}</div>
-                        <div className="text-[10px] font-medium text-red-500">{user.stage}</div>
+          
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full xl:w-auto">
+             <div className="flex flex-wrap gap-3">
+                {visibleActionList.map((user, i) => (
+                    <div key={i} className="flex-shrink-0 flex items-center gap-3 bg-white px-4 py-2.5 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-all cursor-pointer">
+                        <div>
+                            <div className="text-xs font-bold text-gray-900">{user.name}</div>
+                            <div className="text-[10px] font-medium text-red-500">{user.stage}</div>
+                        </div>
+                        <div className="flex gap-1 border-l border-gray-100 pl-3 ml-1">
+                            <a href={`tel:${user.phone}`} className="p-1.5 hover:bg-green-50 rounded-md text-gray-400 hover:text-green-600 transition-colors"><Phone className="w-3.5 h-3.5"/></a>
+                            <a href={`https://wa.me/${user.phone}`} className="p-1.5 hover:bg-green-50 rounded-md text-gray-400 hover:text-green-600 transition-colors"><MessageCircle className="w-3.5 h-3.5"/></a>
+                        </div>
                     </div>
-                     <div className="flex gap-1 border-l border-gray-100 pl-3 ml-1">
-                         <a href={`tel:${user.phone}`} className="p-1.5 hover:bg-green-50 rounded-md text-gray-400 hover:text-green-600 transition-colors"><Phone className="w-3.5 h-3.5"/></a>
-                         <a href={`https://wa.me/${user.phone}`} className="p-1.5 hover:bg-green-50 rounded-md text-gray-400 hover:text-green-600 transition-colors"><MessageCircle className="w-3.5 h-3.5"/></a>
-                     </div>
-                </div>
-             ))}
-             <button className="flex-shrink-0 px-4 py-2 text-xs font-bold text-primary hover:bg-red-50 rounded-lg transition-colors">View All &rarr;</button>
+                ))}
+             </div>
+             <button 
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="flex-shrink-0 flex items-center gap-1 px-4 py-2 text-xs font-bold text-primary hover:bg-red-50 rounded-lg transition-colors whitespace-nowrap"
+             >
+                {isExpanded ? (
+                    <>Show Less <ChevronUp className="w-3 h-3" /></>
+                ) : (
+                    <>View All <ChevronRight className="w-3 h-3" /></>
+                )}
+             </button>
           </div>
        </div>
 
@@ -157,18 +177,12 @@ export default function Earnings() {
                 />
            </div>
            
-           <div className="flex items-center gap-4">
-               <div className="flex items-center gap-2">
-                   <button className="px-4 py-2.5 text-xs font-bold text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors">
-                        PREVIOUS
-                   </button>
-                   <button className="px-4 py-2.5 text-xs font-bold text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                        NEXT
-                   </button>
-               </div>
-               <button className="flex items-center gap-2 px-6 py-2.5 bg-[#4F46E5] text-white rounded-lg text-sm font-bold hover:bg-[#4338CA] shadow-sm hover:shadow active:scale-95 transition-all">
-                    <Copy className="w-4 h-4" />
-                    Copy referral link
+           <div className="flex items-center gap-2">
+               <button className="px-4 py-2.5 text-xs font-bold text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors">
+                    PREVIOUS
+               </button>
+               <button className="px-4 py-2.5 text-xs font-bold text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                    NEXT
                </button>
            </div>
         </div>
@@ -198,7 +212,7 @@ export default function Earnings() {
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                    {history.map((row, idx) => (
+                    {filteredHistory.map((row, idx) => (
                         <tr key={idx} className="hover:bg-gray-50/80 transition-colors group">
                             <td className="px-6 py-4">
                                 <div className="font-bold text-sm text-gray-900">{row.client}</div>
@@ -226,7 +240,7 @@ export default function Earnings() {
             
             {/* Pagination / Empty State Footer */}
             <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/30 flex items-center justify-center text-xs text-gray-400 font-medium">
-                Showing {history.length} results
+                {filteredHistory.length === 0 ? `No results found for "${searchTerm}"` : `Showing ${filteredHistory.length} results`}
             </div>
         </div>
       </div>

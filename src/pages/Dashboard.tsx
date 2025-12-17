@@ -5,10 +5,12 @@ import { dummyData } from '../data/dummyData';
 import ReferralModal from '../components/ReferralModal';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
+import { useHaptic } from '../hooks/useHaptic';
 
 export default function Dashboard() {
   const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
   const { userProfile, earnings, onboardingStats, tradedToday, birthdays, allUsers } = dummyData;
+  const { trigger: haptic } = useHaptic();
 
   // Mock data for sparkline
   const sparklineData = [
@@ -32,11 +34,14 @@ export default function Dashboard() {
 
         <div className="flex items-center gap-4">
             <button 
-                onClick={() => setIsReferralModalOpen(true)}
+                onClick={() => {
+                  haptic();
+                  setIsReferralModalOpen(true);
+                }}
                 className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-md font-medium shadow-sm hover:bg-red-700 transition-all hover:shadow-md active:scale-95"
             >
             <Share2 className="w-4 h-4" />
-            Share Referral Link
+            Onboard Users
             </button>
             <div className="h-10 w-px bg-gray-200" />
             <div className="flex items-center gap-3">
