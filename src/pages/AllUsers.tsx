@@ -41,14 +41,14 @@ export default function AllUsers() {
         <table className="w-full text-left text-sm">
             <thead className="bg-gray-50 text-gray-500 border-b border-gray-100">
                 <tr>
-                    <th className="px-6 py-4 font-medium">Client</th>
-                    <th className="px-6 py-4 font-medium">Contact</th>
-                    <th className="px-6 py-4 font-medium text-center">Sign Up</th>
-                    <th className="px-6 py-4 font-medium text-center">KYC</th>
-                    <th className="px-6 py-4 font-medium text-center">Bank</th>
-                    <th className="px-6 py-4 font-medium text-center">1st Deposit</th>
-                    <th className="px-6 py-4 font-medium">Status</th>
-                    <th className="px-6 py-4 font-medium"></th>
+                    <th className="px-6 py-4 w-[25%] font-medium uppercase text-xs tracking-wider">Client</th>
+                    <th className="px-6 py-4 w-[20%] font-medium uppercase text-xs tracking-wider">Contact</th>
+                    <th className="px-4 py-4 w-[8%] font-medium text-center uppercase text-xs tracking-wider">Sign Up</th>
+                    <th className="px-4 py-4 w-[8%] font-medium text-center uppercase text-xs tracking-wider">KYC</th>
+                    <th className="px-4 py-4 w-[8%] font-medium text-center uppercase text-xs tracking-wider">Bank</th>
+                    <th className="px-4 py-4 w-[10%] font-medium text-center uppercase text-xs tracking-wider">1st Deposit</th>
+                    <th className="px-6 py-4 w-[15%] font-medium uppercase text-xs tracking-wider">Status</th>
+                    <th className="px-6 py-4 w-[6%] font-medium text-right uppercase text-xs tracking-wider">Report</th>
                 </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -58,20 +58,20 @@ export default function AllUsers() {
                         onClick={() => navigate(`/client-view/${user.uid}`)}
                         className="hover:bg-gray-50 transition-colors cursor-pointer group"
                     >
-                        <td className="px-6 py-4">
-                            <div className="font-medium text-gray-900">{user.name}</div>
-                            <div className="text-xs text-gray-500">{user.uid}</div>
+                        <td className="px-6 py-4 align-middle">
+                            <div className="font-bold text-gray-900">{user.name}</div>
+                            <div className="text-xs text-gray-500 font-mono">{user.uid}</div>
                         </td>
-                        <td className="px-6 py-4">
-                            <div className="font-mono text-gray-600">{user.phone}</div>
+                        <td className="px-6 py-4 align-middle">
+                            <div className="font-mono text-gray-600 text-xs">{user.phone}</div>
                         </td>
-                        <td className="px-6 py-4 text-center"><div className="flex justify-center"><StatusIcon checked={user.checks.signup} /></div></td>
-                        <td className="px-6 py-4 text-center"><div className="flex justify-center"><StatusIcon checked={user.checks.kyc} /></div></td>
-                        <td className="px-6 py-4 text-center"><div className="flex justify-center"><StatusIcon checked={user.checks.bank} /></div></td>
-                        <td className="px-6 py-4 text-center"><div className="flex justify-center"><StatusIcon checked={user.checks.deposit} /></div></td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-4 text-center align-middle"><div className="flex justify-center"><StatusIcon checked={user.checks.signup} /></div></td>
+                        <td className="px-4 py-4 text-center align-middle"><div className="flex justify-center"><StatusIcon checked={user.checks.kyc} /></div></td>
+                        <td className="px-4 py-4 text-center align-middle"><div className="flex justify-center"><StatusIcon checked={user.checks.bank} /></div></td>
+                        <td className="px-4 py-4 text-center align-middle"><div className="flex justify-center"><StatusIcon checked={user.checks.deposit} /></div></td>
+                        <td className="px-6 py-4 align-middle">
                              <span className={clsx(
-                                "px-2.5 py-1 rounded-full text-xs font-medium border",
+                                "inline-block px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border",
                                 user.checks.onboarded 
                                     ? "bg-green-50 text-green-700 border-green-100" 
                                     : "bg-orange-50 text-orange-700 border-orange-100"
@@ -79,8 +79,8 @@ export default function AllUsers() {
                                 {user.checks.onboarded ? 'Onboarded' : 'Pending'}
                             </span>
                         </td>
-                        <td className="px-6 py-4 text-right">
-                             <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-primary transition-colors" />
+                        <td className="px-6 py-4 text-right align-middle">
+                             <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-primary transition-colors inline-block" />
                         </td>
                     </tr>
                 ))}

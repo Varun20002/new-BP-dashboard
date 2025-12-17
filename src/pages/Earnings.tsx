@@ -1,114 +1,236 @@
-import { TrendingUp, AlertCircle, Phone, ArrowRight, MessageCircle } from 'lucide-react';
+import { useState } from 'react';
+import { UserPlus, Search, Info, Copy, TrendingUp, Phone, MessageCircle } from 'lucide-react';
 import { dummyData } from '../data/dummyData';
-import { Link } from 'react-router-dom';
 import clsx from 'clsx';
+
+// Utility to parse "₹ 1,20,000" -> 120000
+const parseCurrency = (str: string) => {
+  return parseFloat(str.replace(/[^0-9.]/g, ''));
+};
+
+// Utility to format 120000 -> "₹ 1,20,000" (Indian Locale)
+const formatCurrency = (num: number) => {
+  return '₹ ' + num.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+};
 
 export default function Earnings() {
   const { earnings } = dummyData;
-  const { recoverable } = earnings;
+  const { stats, recoverable, history } = earnings;
+  const [timeFilter, setTimeFilter] = useState('7D');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Scaling logic for filters
+  const getMultiplier = (filter: string) => {
+    switch (filter) {
+        case 'Today': return 0.05; // 5% of total
+        case '7D': return 0.20;    // 20% of total
+        case '30D': return 0.50;   // 50% of total
+        case '90D': return 0.80;   // 80% of total
+        case 'All': default: return 1.0;
+    }
+  };
+
+  const multiplier = getMultiplier(timeFilter);
+
+  // Calculate dynamic stats
+  const dynamicStats = {
+    totalUsers: Math.ceil(stats.totalUsers * multiplier),
+    spotVolume: formatCurrency(parseCurrency(stats.spotVolume) * multiplier),
+    futuresVolume: formatCurrency(parseCurrency(stats.futuresVolume) * multiplier),
+    perpsVolume: formatCurrency(parseCurrency(stats.perpsVolume) * multiplier),
+    credited: formatCurrency(parseCurrency(earnings.credited) * multiplier),
+    pending: formatCurrency(parseCurrency(earnings.pending) * multiplier),
+    total: formatCurrency(parseCurrency(earnings.total) * multiplier),
+  };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8">
-      
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Earnings & Recovery</h1>
-        <p className="text-gray-500 mt-1">Track your revenue and recover lost opportunities.</p>
+    <div className="p-8 max-w-[1600px] mx-auto space-y-8">
+
+      {/* 1. Header Row */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 pb-6">
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-bold text-gray-900">Partner Statistics</h1>
+          <span className="flex items-center gap-1.5 px-3 py-1 bg-green-50 border border-green-100 rounded-full text-[10px] font-bold text-green-700 uppercase tracking-wide">
+            <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </span>
+            LIVE
+          </span>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <button className="flex items-center gap-2 px-4 py-2 text-[#4F46E5] bg-[#4F46E5]/5 hover:bg-[#4F46E5]/10 border border-[#4F46E5]/10 rounded-lg text-sm font-semibold transition-colors">
+            <UserPlus className="w-4 h-4" />
+            Refer Partner and Earn 6000
+          </button>
+
+          <div className="flex bg-gray-100/80 p-1 rounded-lg">
+            {['Today', '7D', '30D', '90D', 'All'].map((period) => (
+              <button
+                key={period}
+                onClick={() => setTimeFilter(period)}
+                className={clsx(
+                  "px-4 py-1.5 text-xs font-bold rounded-md transition-all",
+                  timeFilter === period
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-200/50"
+                )}
+              >
+                {period}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Recoverable Revenue Section (The "North Star") */}
-      <section className="bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl overflow-hidden shadow-sm">
-        <div className="p-6 border-b border-yellow-100 flex items-start justify-between">
-            <div>
-                <div className="flex items-center gap-2 text-yellow-800 font-semibold mb-1">
-                    <TrendingUp className="w-5 h-5" />
-                    <span>Opportunity</span>
+      {/* 2. Metrics Strip */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] overflow-hidden">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 divide-x divide-gray-100">
+          {[
+            { label: 'SPOT VOLUME', value: dynamicStats.spotVolume },
+            { label: 'FUTURES VOLUME', value: dynamicStats.futuresVolume },
+            { label: 'US PERPS VOLUME', value: dynamicStats.perpsVolume },
+            { label: 'INCOME CREDITED', value: dynamicStats.credited, color: 'text-[#059669]' },
+            { label: 'INCOME PENDING', value: dynamicStats.pending, color: 'text-[#D97706]', subLabel: 'YET TO BE CREDITED' },
+            { label: 'TOTAL INCOME', value: dynamicStats.total, color: 'text-[#059669]' },
+          ].map((stat, idx) => (
+             <div key={idx} className="px-4 py-6 flex flex-col items-center text-center group hover:bg-gray-50/50 transition-colors">
+                <div className="flex items-center gap-1 mb-3">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{stat.label}</span>
+                    <Info className="w-3 h-3 text-gray-300 hover:text-gray-500 cursor-help" />
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900">₹ {recoverable.totalAmount.toLocaleString()}</h2>
-                <p className="text-yellow-700 text-sm mt-1">Recoverable revenue from {recoverable.userCount} users stuck in onboarding.</p>
-            </div>
-            <div className="p-3 bg-white/50 rounded-lg backdrop-blur-sm">
-                 <AlertCircle className="w-6 h-6 text-yellow-600" />
-            </div>
+                {stat.subLabel && <span className="text-[9px] font-bold text-gray-300 uppercase -mt-2 mb-2 tracking-wide">{stat.subLabel}</span>}
+                <div className={clsx("text-lg font-bold tracking-tight", stat.color || "text-gray-900")}>
+                    {stat.value}
+                </div>
+             </div>
+          ))}
         </div>
+      </div>
 
-        <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Probability Cards */}
-            <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {recoverable.breakdown.map((item, idx) => (
-                    <div key={idx} className={clsx(
-                        "bg-white p-4 rounded-lg border-l-4 shadow-sm",
-                        item.color === 'green' ? 'border-l-green-500' :
-                        item.color === 'yellow' ? 'border-l-yellow-500' : 'border-l-red-500'
-                    )}>
-                        <p className="text-xs font-semibold text-gray-500 uppercase">{item.probability} Probability</p>
-                        <p className="text-xl font-bold text-gray-900 mt-1">₹ {item.value.toLocaleString()}</p>
-                        <p className="text-xs text-gray-400 mt-1">{item.count} Users</p>
+       {/* 3. Recoverable Revenue (Secondary) */}
+       <div className="bg-gradient-to-r from-orange-50/40 to-yellow-50/40 rounded-xl border border-orange-100/60 p-5 flex flex-col md:flex-row items-center justify-between gap-6 group hover:border-orange-200 transition-colors">
+          <div className="flex items-center gap-5">
+             <div className="p-3 bg-white rounded-xl shadow-sm border border-orange-100">
+                <TrendingUp className="w-6 h-6 text-orange-500" />
+             </div>
+             <div>
+                <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                    Revenue Opportunity 
+                    <span className="bg-orange-100 text-orange-700 text-[10px] px-2 py-0.5 rounded-full">ACTION REQUIRED</span>
+                </h3>
+                <p className="text-xs text-gray-500 mt-1 font-medium">
+                    <span className="text-gray-900 font-bold">₹ {recoverable.totalAmount.toLocaleString()}</span> recoverable from {recoverable.userCount} users stuck in onboarding.
+                </p>
+             </div>
+          </div>
+          <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+             {recoverable.actionList.slice(0, 2).map((user, i) => (
+                <div key={i} className="flex-shrink-0 flex items-center gap-3 bg-white px-4 py-2.5 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-all cursor-pointer">
+                    <div>
+                        <div className="text-xs font-bold text-gray-900">{user.name}</div>
+                        <div className="text-[10px] font-medium text-red-500">{user.stage}</div>
                     </div>
-                ))}
-            </div>
-
-            {/* Action List */}
-            <div className="bg-white rounded-lg border border-yellow-100 shadow-sm overflow-hidden">
-                <div className="px-4 py-3 bg-yellow-100/50 border-b border-yellow-100">
-                    <h3 className="text-sm font-semibold text-gray-800">Priority Action List</h3>
+                     <div className="flex gap-1 border-l border-gray-100 pl-3 ml-1">
+                         <a href={`tel:${user.phone}`} className="p-1.5 hover:bg-green-50 rounded-md text-gray-400 hover:text-green-600 transition-colors"><Phone className="w-3.5 h-3.5"/></a>
+                         <a href={`https://wa.me/${user.phone}`} className="p-1.5 hover:bg-green-50 rounded-md text-gray-400 hover:text-green-600 transition-colors"><MessageCircle className="w-3.5 h-3.5"/></a>
+                     </div>
                 </div>
-                <div className="divide-y divide-gray-50 max-h-[200px] overflow-y-auto">
-                    {recoverable.actionList.map((action, idx) => (
-                        <div key={idx} className="p-3 hover:bg-gray-50 flex items-center justify-between group">
-                            <div>
-                                <p className="text-sm font-medium text-gray-900">{action.name}</p>
-                                <p className="text-xs text-red-500 font-medium">Stuck at: {action.stage}</p>
-                            </div>
-                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <a href={`tel:${action.phone}`} className="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-md">
-                                    <Phone className="w-4 h-4" />
-                                </a>
-                                <a href={`https://wa.me/${action.phone}`} className="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-md">
-                                    <MessageCircle className="w-4 h-4" />
-                                </a>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </div>
-      </section>
+             ))}
+             <button className="flex-shrink-0 px-4 py-2 text-xs font-bold text-primary hover:bg-red-50 rounded-lg transition-colors">View All &rarr;</button>
+          </div>
+       </div>
 
-      {/* Earnings History Table */}
-      <section className="bg-white rounded-xl border border-gray-200 shadow-sm">
-        <div className="p-6 border-b border-gray-100">
-            <h3 className="text-lg font-bold text-gray-900">Earnings History</h3>
+      {/* 4. Transactions Table */}
+      <div className="space-y-6 pt-4">
+        {/* Controls */}
+        <div className="flex flex-col md:flex-row justify-between gap-4">
+           <div className="relative w-full md:w-[480px]">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input 
+                    type="text" 
+                    placeholder="Search by name or UID" 
+                    className="w-full pl-11 pr-4 py-3 bg-gray-50/50 border border-gray-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-[#4F46E5]/10 focus:border-[#4F46E5] outline-none transition-all placeholder:text-gray-400"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+           </div>
+           
+           <div className="flex items-center gap-4">
+               <div className="flex items-center gap-2">
+                   <button className="px-4 py-2.5 text-xs font-bold text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors">
+                        PREVIOUS
+                   </button>
+                   <button className="px-4 py-2.5 text-xs font-bold text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        NEXT
+                   </button>
+               </div>
+               <button className="flex items-center gap-2 px-6 py-2.5 bg-[#4F46E5] text-white rounded-lg text-sm font-bold hover:bg-[#4338CA] shadow-sm hover:shadow active:scale-95 transition-all">
+                    <Copy className="w-4 h-4" />
+                    Copy referral link
+               </button>
+           </div>
         </div>
-        <table className="w-full text-left text-sm">
-            <thead className="bg-gray-50 text-gray-500">
-                <tr>
-                    <th className="px-6 py-4 font-medium">Date</th>
-                    <th className="px-6 py-4 font-medium">Client</th>
-                    <th className="px-6 py-4 font-medium">Type</th>
-                    <th className="px-6 py-4 font-medium">Amount</th>
-                    <th className="px-6 py-4 font-medium text-right">Report</th>
-                </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-                {earnings.history.map((item, idx) => (
-                    <tr key={idx} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-6 py-4 text-gray-500">{item.date}</td>
-                        <td className="px-6 py-4 font-medium text-gray-900">{item.client}</td>
-                        <td className="px-6 py-4">
-                            <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-medium">{item.type}</span>
-                        </td>
-                        <td className="px-6 py-4 font-medium text-green-600">{item.amount}</td>
-                        <td className="px-6 py-4 text-right">
-                             <Link to="/client-view/mock-id" className="text-primary hover:underline text-xs font-medium inline-flex items-center gap-1">
-                                View Report <ArrowRight className="w-3 h-3" />
-                             </Link>
-                        </td>
+
+        {/* Table */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <table className="w-full text-left">
+                <thead className="bg-gray-50/50 border-b border-gray-100">
+                    <tr>
+                        <th className="px-6 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Name / UID</th>
+                        <th className="px-6 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Order type</th>
+                        <th className="px-6 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                            <div className="flex items-center gap-1 cursor-pointer hover:text-gray-700 group">
+                                <Info className="w-3 h-3 text-gray-400 group-hover:text-gray-600" /> Volume
+                            </div>
+                        </th>
+                        <th className="px-6 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                            <div className="flex items-center gap-1 cursor-pointer hover:text-gray-700 group">
+                                <Info className="w-3 h-3 text-gray-400 group-hover:text-gray-600" /> Earnings
+                            </div>
+                        </th>
+                        <th className="px-6 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                            <div className="flex items-center gap-1 cursor-pointer hover:text-gray-700 group">
+                                <Info className="w-3 h-3 text-gray-400 group-hover:text-gray-600" /> Total Earnings
+                            </div>
+                        </th>
                     </tr>
-                ))}
-            </tbody>
-        </table>
-      </section>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                    {history.map((row, idx) => (
+                        <tr key={idx} className="hover:bg-gray-50/80 transition-colors group">
+                            <td className="px-6 py-4">
+                                <div className="font-bold text-sm text-gray-900">{row.client}</div>
+                                <div className="text-[10px] text-gray-400 font-mono font-medium mt-0.5">{row.uid}</div>
+                            </td>
+                            <td className="px-6 py-4">
+                                <span className={clsx(
+                                    "inline-flex items-center px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wide",
+                                    row.type === 'Spot' ? "bg-blue-50 text-blue-700" :
+                                    row.type === 'Futures' ? "bg-purple-50 text-purple-700" :
+                                    "bg-orange-50 text-orange-700"
+                                )}>
+                                    {row.type}
+                                </span>
+                            </td>
+                            <td className="px-6 py-4 text-sm font-semibold text-gray-900">{row.volume}</td>
+                            <td className="px-6 py-4">
+                                <span className="text-sm font-bold text-green-600">{row.earnings}</span>
+                            </td>
+                            <td className="px-6 py-4 text-sm font-bold text-gray-900">{row.totalEarnings}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+            
+            {/* Pagination / Empty State Footer */}
+            <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/30 flex items-center justify-center text-xs text-gray-400 font-medium">
+                Showing {history.length} results
+            </div>
+        </div>
+      </div>
+
     </div>
   );
 }
