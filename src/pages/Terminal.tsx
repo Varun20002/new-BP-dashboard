@@ -1,7 +1,7 @@
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 
 export default function Terminal() {
-  const data = Array.from({ length: 50 }, (_, i) => ({ value: Math.random() * 100 + 50 }));
+  const data = Array.from({ length: 50 }, () => ({ value: Math.random() * 100 + 50 }));
 
   return (
     <div className="p-8 h-[calc(100vh-64px)] flex flex-col items-center justify-center text-center">

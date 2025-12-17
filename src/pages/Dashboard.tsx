@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
-import { Share2, ArrowRight, MessageCircle, Mail, ChevronRight, TrendingUp } from 'lucide-react';
+import { Share2, ArrowRight, MessageCircle, ChevronRight, TrendingUp } from 'lucide-react';
 import { dummyData } from '../data/dummyData';
 import ReferralModal from '../components/ReferralModal';
 import { Link } from 'react-router-dom';
